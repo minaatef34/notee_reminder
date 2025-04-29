@@ -11,7 +11,7 @@ class AddNotePage extends StatefulWidget {
 
 class _AddNotePageState extends State<AddNotePage> {
   SqlDb sqlDb = SqlDb();
-  GlobalKey<FormState> formstate = GlobalKey();
+  GlobalKey<FormState> formstate = GlobalKey<FormState>();
   TextEditingController note = TextEditingController();
   TextEditingController title = TextEditingController();
   TextEditingController yourNote = TextEditingController();
@@ -56,9 +56,16 @@ class _AddNotePageState extends State<AddNotePage> {
                             decoration: InputDecoration(
                               border: InputBorder.none,
                               hintText: "Title",
-                              hintStyle: TextStyle(color: Colors.grey, fontSize: 30,),
+                              hintStyle: TextStyle(
+                                color: Colors.grey,
+                                fontSize: 30,
+                              ),
                             ),
-
+                            validator: (input) {
+                              if (input == null || input.isEmpty == true) {
+                                return 'required';
+                              }
+                            },
                             controller: note,
                           ),
                           TextFormField(
@@ -68,9 +75,16 @@ class _AddNotePageState extends State<AddNotePage> {
                             decoration: InputDecoration(
                               border: InputBorder.none,
                               hintText: "Type something here",
-                              hintStyle: TextStyle(color: Colors.grey,),
+                              hintStyle: TextStyle(
+                                color: Colors.grey,
+                              ),
                             ),
                             controller: title,
+                            validator: (input) {
+                              if (input == null || input.isEmpty == true) {
+                                return 'required';
+                              }
+                            },
                           ),
                         ],
                       ),
@@ -83,13 +97,14 @@ class _AddNotePageState extends State<AddNotePage> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () async{
-          int response = await sqlDb.insertData(
-              '''INSERT INTO notes (`note` , `title`, `yourNote`)
+        onPressed: () async {
+          if (formstate.currentState?.validate() == true) {
+            int response = await sqlDb.insertData('''INSERT INTO notes (`note` , `title`, `yourNote`)
                   VALUES ("${note.text}" , "${title.text}", "${yourNote.text}")
                   ''');
-          if (response > 0){
-            Navigator.push(context, MaterialPageRoute(builder: (context)=> HomePage()));
+            if (response > 0) {
+              Navigator.pop(context);
+            }
           }
         },
         backgroundColor: Colors.grey,
@@ -101,7 +116,6 @@ class _AddNotePageState extends State<AddNotePage> {
           color: Colors.black,
         ),
       ),
-
     );
   }
 }
