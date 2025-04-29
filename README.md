@@ -1,6 +1,6 @@
 # notee_reminder
 
-A new Flutter project.
+App for note reminder
 
 ## Getting Started
 
