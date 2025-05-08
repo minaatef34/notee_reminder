@@ -6,8 +6,8 @@ class EditNote extends StatefulWidget {
   final note;
   final title;
   final id;
-  final yourNote;
-  const EditNote({super.key, this.note, this.title, this.id, this.yourNote});
+
+  const EditNote({super.key, this.note, this.title, this.id});
 
   @override
   State<EditNote> createState() => _EditNoteState();
@@ -18,12 +18,11 @@ class _EditNoteState extends State<EditNote> {
   GlobalKey<FormState> formstate = GlobalKey();
   TextEditingController note = TextEditingController();
   TextEditingController title = TextEditingController();
-  TextEditingController yourNote = TextEditingController();
+
   @override
   void initState() {
     note.text = widget.note;
     title.text = widget.title;
-    yourNote .text = widget.yourNote;
     super.initState();
   }
 
@@ -39,71 +38,75 @@ class _EditNoteState extends State<EditNote> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 IconButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                    padding: EdgeInsets.all(0),
-                    icon: Container(
-                        width: 40,
-                        height: 40,
-                        decoration: BoxDecoration(color: Colors.grey.shade800, borderRadius: BorderRadius.circular(8)),
-                        child: Icon(
-                          Icons.arrow_back,
-                          color: Colors.white,
-                        )))
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  padding: EdgeInsets.all(0),
+                  icon: Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(color: Colors.grey.shade800, borderRadius: BorderRadius.circular(8)),
+                    child: Icon(
+                      Icons.arrow_back,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
               ],
             ),
-            Container(
-              child: Expanded(
-                child: ListView(
-                  children: [
-                    Form(
-                      key: formstate,
-                      child: Column(
-                        children: [
-                          TextFormField(
-                            textInputAction: TextInputAction.next,
-                            style: TextStyle(color: Colors.white, fontSize: 30),
-                            decoration: InputDecoration(
-                              border: InputBorder.none,
-                              hintText: "Title",
-                              hintStyle: TextStyle(color: Colors.grey, fontSize: 30,),
+            Expanded(
+              child: ListView(
+                children: [
+                  Form(
+                    key: formstate,
+                    child: Column(
+                      children: [
+                        TextFormField(
+                          textInputAction: TextInputAction.next,
+                          style: TextStyle(color: Colors.white, fontSize: 30),
+                          decoration: InputDecoration(
+                            border: InputBorder.none,
+                            hintText: "Title",
+                            hintStyle: TextStyle(
+                              color: Colors.grey,
+                              fontSize: 30,
                             ),
-
-                            controller: note,
                           ),
-                          TextFormField(
-                            style: TextStyle(color: Colors.white),
-                            maxLines: null,
-                            keyboardType: TextInputType.multiline,
-                            decoration: InputDecoration(
-                              border: InputBorder.none,
-                              hintText: "Type something here",
-                              hintStyle: TextStyle(color: Colors.grey,),
+                          controller: note,
+                        ),
+                        TextFormField(
+                          style: TextStyle(color: Colors.white),
+                          maxLines: null,
+                          keyboardType: TextInputType.multiline,
+                          decoration: InputDecoration(
+                            border: InputBorder.none,
+                            hintText: "Type something here",
+                            hintStyle: TextStyle(
+                              color: Colors.grey,
                             ),
-                            controller: title,
                           ),
-                        ],
-                      ),
+                          controller: title,
+                        ),
+                      ],
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
           ],
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () async{
+        onPressed: () async {
           int response = await sqlDb.updateData(
-              ''' UPDATE notes SET 
-              note = "${note.text}" , 
-              title = "${title.text}" ,
-              yourNote = "${yourNote.text}"
-              WHERE id = ${widget.id}
-                  ''');
-          if (response > 0){
-            Navigator.push(context, MaterialPageRoute(builder: (context)=> HomePage()));
+            ''' UPDATE notes SET 
+                `note` = "${note.text}" , 
+                `title` = "${title.text}" 
+                 WHERE `id` = ${widget.id}
+                  ''',
+          );
+          if (response > 0) {
+            Navigator.push(context, MaterialPageRoute(builder: (context) => HomePage()));
           }
         },
         backgroundColor: Colors.grey,
@@ -115,7 +118,6 @@ class _EditNoteState extends State<EditNote> {
           color: Colors.black,
         ),
       ),
-
     );
   }
 }

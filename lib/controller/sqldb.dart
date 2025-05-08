@@ -18,29 +18,26 @@ class SqlDb {
   intialDb() async {
     String databasePath = await getDatabasesPath();
     String path = join(databasePath, "mina.db");
-    Database mydb = await openDatabase(path, onCreate: _onCreate, version:3, onUpgrade: _onUpgrade);
+    Database mydb = await openDatabase(path, onCreate: _onCreate, version: 1, onUpgrade: _onUpgrade);
     return mydb;
   }
 
   _onCreate(Database db, int version) async {
     Batch batch = db.batch();
-     batch.execute("""
-CREATE TABLE "Notes"(
-"id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-"note" TEXT NOT NULL,
-"title" TEXT NOT NULL,
-
-
-
-)
+    batch.execute("""
+        CREATE TABLE "Notes"(
+        "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+        "note" TEXT NOT NULL,
+        "title" TEXT NOT NULL
+        )
     """);
     await batch.commit();
     print("oncreate*******************");
   }
 
-  _onUpgrade(Database db, int oldversion, int newversion) async{
-    await db.execute("ALTER TABLE notes ADD COLUMN yourNote TEXT");
-    print("onupgrade**********");
+  _onUpgrade(Database db, int oldversion, int newversion) async {
+    // await db.execute("ALTER TABLE notes ADD COLUMN yourNote TEXT");
+    // print("onupgrade**********");
   }
 
   readData(String sql) async {
@@ -66,7 +63,8 @@ CREATE TABLE "Notes"(
     int response = await mydb!.rawDelete(sql);
     return response;
   }
-  mydeleteDatabase ()async{
+
+  mydeleteDatabase() async {
     String databasepath = await getDatabasesPath();
     String path = join(databasepath, 'mina.db');
     await deleteDatabase(path);

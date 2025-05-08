@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:notee_reminder/home/presentation/pages/home_page.dart';
 import 'package:notee_reminder/controller/sqldb.dart';
 
 class AddNotePage extends StatefulWidget {
@@ -14,7 +13,6 @@ class _AddNotePageState extends State<AddNotePage> {
   GlobalKey<FormState> formstate = GlobalKey<FormState>();
   TextEditingController note = TextEditingController();
   TextEditingController title = TextEditingController();
-  TextEditingController yourNote = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -99,8 +97,8 @@ class _AddNotePageState extends State<AddNotePage> {
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
           if (formstate.currentState?.validate() == true) {
-            int response = await sqlDb.insertData('''INSERT INTO notes (`note` , `title`, `yourNote`)
-                  VALUES ("${note.text}" , "${title.text}", "${yourNote.text}")
+            int response = await sqlDb.insertData('''INSERT INTO notes (`note` , `title`)
+                  VALUES ("${note.text}" , "${title.text}")
                   ''');
             if (response > 0) {
               Navigator.pop(context);

@@ -16,9 +16,13 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   SqlDb sqlDb = SqlDb();
   bool isLoading = true;
-  List notes = [];
+  List<Map<String, Object?>> notes = [];
+  List<Map<String, Object?>> searchedNotes = [];
+
   Future readData() async {
-    List<Map> response = await sqlDb.readData("SELECT * FROM notes");
+    notes = [];
+    searchedNotes = [];
+    List<Map<String, Object?>> response = await sqlDb.readData("SELECT * FROM notes");
     notes.addAll(response);
     isLoading = false;
     if (this.mounted) {
@@ -52,10 +56,15 @@ class _HomePageState extends State<HomePage> {
                 "Notes",
                 style: TextStyle(fontSize: 30, color: Colors.white, fontWeight: FontWeight.bold),
               ),
-              SizedBox(
-                height: 15,
-              ),
+              SizedBox(height: 15),
               TextField(
+                onChanged: (String? input) {
+                  if (input == null || input.isEmpty) {
+                    readData();
+                  } else {
+                    _searchForNote(input);
+                  }
+                },
                 style: TextStyle(fontSize: 16, color: Colors.white),
                 decoration: InputDecoration(
                   contentPadding: EdgeInsets.symmetric(vertical: 12),
@@ -77,74 +86,158 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ),
               ),
-              Expanded(
+              if (searchedNotes.isEmpty)
+                Expanded(
                   child: ListView.builder(
-                      itemCount: notes.length,
-                      padding: EdgeInsets.only(top:30),
-                      itemBuilder: (context, i) {
-                        return Card(
-                          margin: EdgeInsets.only(bottom: 20),
-                          color: getRandomColor(),
-                          elevation: 3,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                          child: Padding(
-                            padding: const EdgeInsets.all(10.0),
-                            child: ListTile(
-                             contentPadding: EdgeInsets.symmetric(horizontal: 10),
-                              title: Text("${notes[i]["note"]}",
-                                  maxLines: 1,
-                                  style: TextStyle(
-                                      color: Colors.black, fontWeight: FontWeight.bold, fontSize: 18, height: 1.5)),
-                              subtitle: Padding(
-                                padding: const EdgeInsets.only(top: 3),
-                                child: Text(
-                                  ("${notes[i]["title"]}"),
-                                  maxLines: 2,
-                                  style: TextStyle(fontSize: 10, fontStyle: FontStyle.italic, color: Colors.grey),
-                                ),
-                              ),
-                              trailing: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                mainAxisAlignment: MainAxisAlignment.end,
-                                children: [
-                                  IconButton(
-                                      onPressed: () async {
-                                        int response =
-                                            await sqlDb.deleteData("DELETE FROM notes WHERE id = ${notes[i]['id']}");
-                                        if (response > 0) {
-                                          notes.removeWhere((element) => element['id'] == notes[i]['id']);
-                                          setState(() {});
-                                        }
-                                      },
-                                      icon: Icon(Icons.delete,)),
-                                  IconButton(
-                                      onPressed: () {
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (context) => EditNote(
-                                              note: notes[i]["note"],
-                                              title: notes[i]["title"],
-                                              yourNote: notes[i]["yourNote"],
-                                              id: notes[i]["id"],
-                                            ),
-                                          ),
-                                        );
-                                      },
-                                      icon: Icon(Icons.edit)),
-                                ],
+                    itemCount: notes.length,
+                    padding: EdgeInsets.only(top: 30),
+                    itemBuilder: (context, i) {
+                      return Card(
+                        margin: EdgeInsets.only(bottom: 20),
+                        color: getRandomColor(),
+                        elevation: 3,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                        child: Padding(
+                          padding: const EdgeInsets.all(10.0),
+                          child: ListTile(
+                            contentPadding: EdgeInsets.symmetric(horizontal: 10),
+                            title: Text(
+                              "${notes[i]["note"]}",
+                              maxLines: 1,
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 18,
+                                height: 1.5,
                               ),
                             ),
+                            subtitle: Padding(
+                              padding: const EdgeInsets.only(top: 3),
+                              child: Text(
+                                ("${notes[i]["title"]}"),
+
+                                style: TextStyle(fontSize: 10, fontStyle: FontStyle.italic, color: Colors.grey),
+                              ),
+                            ),
+                            trailing: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                IconButton(
+                                  onPressed: () async {
+                                    int response =
+                                        await sqlDb.deleteData("DELETE FROM notes WHERE id = ${notes[i]['id']}");
+                                    if (response > 0) {
+                                      notes.removeWhere((element) => element['id'] == notes[i]['id']);
+                                      setState(() {});
+                                    }
+                                  },
+                                  icon: Icon(Icons.delete),
+                                ),
+                                IconButton(
+                                  onPressed: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => EditNote(
+                                          note: notes[i]["note"],
+                                          title: notes[i]["title"],
+                                          id: notes[i]["id"],
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                  icon: Icon(Icons.edit),
+                                ),
+                              ],
+                            ),
                           ),
-                        );
-                      }))
+                        ),
+                      );
+                    },
+                  ),
+                )
+              else
+                Expanded(
+                  child: ListView.builder(
+                    itemCount: searchedNotes.length,
+                    padding: EdgeInsets.only(top: 30),
+                    itemBuilder: (context, i) {
+                      return Card(
+                        margin: EdgeInsets.only(bottom: 20),
+                        color: getRandomColor(),
+                        elevation: 3,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                        child: Padding(
+                          padding: const EdgeInsets.all(10.0),
+                          child: ListTile(
+                            contentPadding: EdgeInsets.symmetric(horizontal: 10),
+                            title: Text(
+                              "${searchedNotes[i]["note"]}",
+                              maxLines: 1,
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 18,
+                                height: 1.5,
+                              ),
+                            ),
+                            subtitle: Padding(
+                              padding: const EdgeInsets.only(top: 3),
+                              child: Text(
+                                ("${searchedNotes[i]["title"]}"),
+                                maxLines: 2,
+                                style: TextStyle(fontSize: 10, fontStyle: FontStyle.italic, color: Colors.grey),
+                              ),
+                            ),
+                            trailing: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                IconButton(
+                                  onPressed: () async {
+                                    int response = await sqlDb
+                                        .deleteData("DELETE FROM notes WHERE id = ${searchedNotes[i]['id']}");
+                                    if (response > 0) {
+                                      searchedNotes.removeWhere((element) => element['id'] == searchedNotes[i]['id']);
+                                      setState(() {});
+                                    }
+                                  },
+                                  icon: Icon(
+                                    Icons.delete,
+                                  ),
+                                ),
+                                IconButton(
+                                  onPressed: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => EditNote(
+                                          note: searchedNotes[i]["note"],
+                                          title: searchedNotes[i]["title"],
+                                          id: searchedNotes[i]["id"],
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                  icon: Icon(Icons.edit),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
             ],
           ),
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(context, MaterialPageRoute(builder: (context) => AddNotePage()));
+        onPressed: () async {
+          await Navigator.push(context, MaterialPageRoute(builder: (context) => AddNotePage()));
+          readData();
         },
         backgroundColor: Colors.grey.shade700,
         elevation: 10,
@@ -156,5 +249,16 @@ class _HomePageState extends State<HomePage> {
         ),
       ),
     );
+  }
+
+  void _searchForNote(input) {
+    searchedNotes = [];
+    for (int i = 0; i < notes.length; i++) {
+      if (notes[i]['note'].toString().contains(input) || notes[i]['title'].toString().contains(input)) {
+        searchedNotes.add(notes[i]);
+      }
+    }
+
+    setState(() {});
   }
 }
