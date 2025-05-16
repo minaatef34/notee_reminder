@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "295480918322",
+    "project_id": "note-reminder-3f9a4",
+    "storage_bucket": "note-reminder-3f9a4.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:295480918322:android:8c62bd6ab3683db456172b",
+        "android_client_info": {
+          "package_name": "com.doc_dev.notee_reminder"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDm-G0HZSXPHywTBW5D5QGmYVx-iN6dA9E"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
